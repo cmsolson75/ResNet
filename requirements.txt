@@ -1,0 +1,7 @@
+torch
+torchvision
+hydra-core
+lightning
+numpy
+omegaconf
+wandb
