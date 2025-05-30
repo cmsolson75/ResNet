@@ -1,5 +1,6 @@
 # Don't version the data folder
 CIFAR10/
+cifar10/
 CIFAR100/
 __pycache__
 lightning_logs/
