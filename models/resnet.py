@@ -1,14 +1,14 @@
 import torch
 import torch.nn as nn
-from typing import List, Union
-from resnet.models.blocks import BasicBlock, Bottleneck
+from typing import List, Union, Type
+from models.blocks import BasicBlock, Bottleneck
 
 
 class ResNet(nn.Module):
     def __init__(
         self,
         stem: nn.Module,
-        block: Union[BasicBlock, Bottleneck],
+        block: Type[Union[BasicBlock, Bottleneck]],
         block_layers: List[int],
         stage_channels: List[int],
         num_classes: int,

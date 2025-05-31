@@ -1,0 +1,6 @@
+module:
+  _target_: training.module.TrainModule
+  model: ${model}
+  optimizer: ${optimizer}
+  scheduler: ${scheduler}
+  num_classes: 10

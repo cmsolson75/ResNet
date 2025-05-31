@@ -14,8 +14,6 @@ Will add
 """
 
 
-
-
 from torchvision.transforms import transforms
 import torchvision
 
@@ -72,8 +70,7 @@ model = ResNet(
     block_layers=[3, 3, 4, 4],
     stage_channels=[16, 32, 64, 128],
     num_classes=10,
-    use_residual=True
-
+    use_residual=True,
 )
 model = model.to(device)
 

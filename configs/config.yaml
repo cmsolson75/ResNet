@@ -1,0 +1,10 @@
+defaults:
+   - dataset: cifar10
+   - model: resnet_cifar
+   - model/block: basic
+   - model/stem: cifar
+   - optimizer: sgd
+   - scheduler: cosine
+   - trainer: default
+   - training: default
+   - experiment: train_cifar_from_scratch
