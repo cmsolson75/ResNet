@@ -1,26 +1,28 @@
 import hydra
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 from hydra.utils import instantiate, get_class
 import lightning as L
 import torch
 
-@hydra.main(config_path="configs", config_name="config", version_base="1.3")
+@hydra.main(config_path="src/configs", config_name="config", version_base="1.3")
 def main(cfg: DictConfig):
     block_cls = get_class(cfg.model.block._target_)
     stem = instantiate(cfg.model.stem)
 
     # Instantiate model with class objects
     model = instantiate(cfg.model, block=block_cls, stem=stem)
+    optimizer = instantiate(cfg.optimizer, params=model.parameters())
+    scheduler = instantiate(cfg.scheduler, optimizer=optimizer)
 
     datamodule = instantiate(cfg.dataset)
     lightning_module = instantiate(
-        cfg.training.module,
+        cfg.training,
         model=model,
-        optimizer=cfg.optimizer,
-        scheduler=cfg.scheduler,
+        optimizer=optimizer,
+        scheduler=scheduler,
     )
 
-        # Callbacks
+    # Callbacks
     callbacks = [instantiate(cb) for cb in cfg.trainer.callbacks.values()]
     logger = instantiate(cfg.trainer.logger)
 

@@ -1,6 +1,0 @@
-_target_: data.datamodule.CIFAR10DataModule
-data_dir: ./datasets
-batch_size: 256
-num_workers: 12
-pin_memory: true
-persistent_workers: true

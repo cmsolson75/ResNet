@@ -1,0 +1,5 @@
+_target_: src.training.module.TrainModule
+model: ${model}
+optimizer: ${optimizer}
+scheduler: ${scheduler}
+num_classes: 10

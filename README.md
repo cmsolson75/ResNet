@@ -6,10 +6,22 @@ Implementation References
 - [Torch](https://docs.pytorch.org/vision/main/_modules/torchvision/models/resnet.html)
 - [Paper](https://arxiv.org/abs/1512.03385)
 
-Next Steps
-- Evaluate ResNet on Cifar10 and Cifar100
-- Implement extendable codebase.
-
+Requirements
+- Training system
+  - Hydra: Dynamic config managment
+  - W&B: Logging -> Save some artifacts to it. 
+  - PTL: Training wrapper; keep it only for that.
+- Inference System
+  - Gradio interface
+  - Config system
+  - ONNX compilation.
+- Hydra controls full system
+  - Demo
+  - Model Export
+  - Training
+  - Ensure: Hydra is on the edge of the system, I don't want everything to be relient on it that is needed downstream in deployment.
+- Basic tests
+  - Stuff to make sure configs load, and model is working as expected.
 
 
 ## 🧪 Experiment Plan

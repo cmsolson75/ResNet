@@ -1,0 +1,20 @@
+defaults:
+   - _self_
+   - dataset: cifar10
+   - model: resnet_cifar
+   - model/block: basic
+   - model/stem: cifar
+   - optimizer: sgd
+   - scheduler: cosine
+   - trainer: default
+   - training: default
+   - experiment: train_cifar_from_scratch
+
+hydra:
+  run:
+    dir: logs/${now:%Y-%m-%d_%H-%M-%S}
+  sweep:
+    dir: logs/multirun/${now:%Y-%m-%d_%H-%M-%S}
+  output_subdir: null
+  job:
+    chdir: true

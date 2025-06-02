@@ -1,4 +1,4 @@
-_target_: models.resnet.ResNet
+_target_: src.models.resnet.ResNet
 stem: ${model/stem}
 block: ${model/block}
 block_layers: [3, 3, 3]

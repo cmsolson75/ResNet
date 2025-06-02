@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from typing import List, Union, Type
-from models.blocks import BasicBlock, Bottleneck
+from src.models.blocks import BasicBlock, Bottleneck
 
 
 class ResNet(nn.Module):
