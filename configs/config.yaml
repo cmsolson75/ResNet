@@ -10,6 +10,10 @@ defaults:
    - training: default
    - experiment: train_cifar_from_scratch
 
+checkpoint:
+  resume:
+    ckpt_path: /home/cameronolson/documents/projects/ResNet/logs/2025-06-02_19-22-13/resnet_experiments/83vgm0ll/checkpoints/last.ckpt
+
 hydra:
   run:
     dir: logs/${now:%Y-%m-%d_%H-%M-%S}
