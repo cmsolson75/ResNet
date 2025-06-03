@@ -36,7 +36,6 @@ def main(cfg: DictConfig):
         devices=cfg.trainer.devices,
         strategy=cfg.trainer.strategy,
         precision=cfg.trainer.precision,
-        benchmark=True,
     )
     ckpt_path = cfg.checkpoint.resume.ckpt_path
     if ckpt_path:

@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - override /dataset: cifar100
+  - override /model: resnet_cifar100
+
+experiment: train_cifar100

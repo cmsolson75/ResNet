@@ -5,14 +5,26 @@ from hydra.utils import instantiate
 import torch
 
 class TrainModule(L.LightningModule):
-    def __init__(self, model, optimizer, scheduler, num_classes: int = 10):
+    def __init__(self, model, optimizer, scheduler, freeze_backbone=False):
         super().__init__()
         self.model = model
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optimizer
         self.scheduler = scheduler
-        self.train_acc = Accuracy(task="multiclass", num_classes=num_classes)
-        self.val_acc = Accuracy(task="multiclass", num_classes=num_classes)
+        self.train_acc = Accuracy(task="multiclass", num_classes=self.model.num_classes)
+        self.val_acc = Accuracy(task="multiclass", num_classes=self.model.num_classes)
+
+        if freeze_backbone:
+            self.freeze_backbone_layers()
+
+    
+    def freeze_backbone_layers(self):
+        for param in self.model.stem.parameters():
+            param.requires_grad = False
+        for stage in self.model.stages:
+            for param in stage.parameters():
+                param.requires_grad = False
+
 
     def forward(self, x):
         return self.model(x)

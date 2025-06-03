@@ -102,20 +102,7 @@ This project explores residual networks (ResNets) under various training regimes
 * Compare depth-wise behavior in ResNet vs. PlainNet
 
 
----- export.py ----
-
----- requirements.txt ----
-torch
-torchvision
-hydra-core
-lightning
-numpy
-omegaconf
-wandb
-
----- src/__init__.py ----
-
----- src/configs/config.yaml ----
+---- configs/config.yaml ----
 defaults:
    - _self_
    - dataset: cifar10
@@ -128,6 +115,10 @@ defaults:
    - training: default
    - experiment: train_cifar_from_scratch
 
+checkpoint:
+  resume:
+    ckpt_path: null
+
 hydra:
   run:
     dir: logs/${now:%Y-%m-%d_%H-%M-%S}
@@ -137,7 +128,7 @@ hydra:
   job:
     chdir: true
 
----- src/configs/dataset/cifar10.yaml ----
+---- configs/dataset/cifar10.yaml ----
 _target_: src.data.datamodule.CIFAR10DataModule
 data_dir: ${hydra:runtime.cwd}/datasets
 batch_size: 256
@@ -145,13 +136,13 @@ num_workers: 7
 pin_memory: true
 persistent_workers: true
 
----- src/configs/experiment/train_cifar_from_scratch.yaml ----
+---- configs/experiment/train_cifar_from_scratch.yaml ----
 experiment: train_cifar_from_scratch
 
----- src/configs/model/block/basic.yaml ----
+---- configs/model/block/basic.yaml ----
 _target_: src.models.blocks.BasicBlock
 
----- src/configs/model/resnet_cifar.yaml ----
+---- configs/model/resnet_cifar.yaml ----
 _target_: src.models.resnet.ResNet
 stem: ${model/stem}
 block: ${model/block}
@@ -159,23 +150,23 @@ block_layers: [3, 3, 3]
 stage_channels: [16, 32, 64]
 num_classes: 10
 
----- src/configs/model/stem/cifar.yaml ----
+---- configs/model/stem/cifar.yaml ----
 _target_: src.models.stems.CIFARStem
 
----- src/configs/optimizer/sgd.yaml ----
+---- configs/optimizer/sgd.yaml ----
 _target_: torch.optim.SGD
 lr: 0.1
 momentum: 0.9
 weight_decay: 0.0001
 
----- src/configs/scheduler/cosine.yaml ----
+---- configs/scheduler/cosine.yaml ----
 _target_: torch.optim.lr_scheduler.CosineAnnealingLR
 T_max: 100
 eta_min: 1e-5
 
----- src/configs/trainer/default.yaml ----
+---- configs/trainer/default.yaml ----
 _target_: lightning.Trainer
-max_epochs: 20
+max_epochs: 40
 accelerator: gpu
 devices: 1
 strategy: auto
@@ -190,16 +181,29 @@ callbacks:
     _target_: lightning.pytorch.callbacks.ModelCheckpoint
     monitor: val/loss
     mode: min
-    save_top_k: 1
+    save_top_k: 3
     save_last: true
+    every_n_epochs: 10
     filename: "{epoch}-{val_loss:.4f}"
 
----- src/configs/training/default.yaml ----
+---- configs/training/default.yaml ----
 _target_: src.training.module.TrainModule
 model: ${model}
 optimizer: ${optimizer}
 scheduler: ${scheduler}
-num_classes: 10
+
+---- export.py ----
+
+---- requirements.txt ----
+torch
+torchvision
+hydra-core
+lightning
+numpy
+omegaconf
+wandb
+
+---- src/__init__.py ----
 
 ---- src/data/__init__.py ----
 
@@ -404,6 +408,8 @@ class ResNet(nn.Module):
         use_residual: bool = True,
     ) -> None:
         super().__init__()
+        
+        self.num_classes = num_classes
         self.stem = stem
         self.in_planes = stem.out_channels
 
@@ -423,7 +429,7 @@ class ResNet(nn.Module):
 
         final_planes = stage_channels[-1] * getattr(block, "expansion", 1)
         self.pool = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Linear(final_planes, num_classes)
+        self.fc = nn.Linear(final_planes, self.num_classes)
 
     def _make_layer(
         self,
@@ -481,14 +487,14 @@ from hydra.utils import instantiate
 import torch
 
 class TrainModule(L.LightningModule):
-    def __init__(self, model, optimizer, scheduler, num_classes: int = 10):
+    def __init__(self, model, optimizer, scheduler):
         super().__init__()
         self.model = model
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = optimizer
         self.scheduler = scheduler
-        self.train_acc = Accuracy(task="multiclass", num_classes=num_classes)
-        self.val_acc = Accuracy(task="multiclass", num_classes=num_classes)
+        self.train_acc = Accuracy(task="multiclass", num_classes=self.model.num_classes)
+        self.val_acc = Accuracy(task="multiclass", num_classes=self.model.num_classes)
 
     def forward(self, x):
         return self.model(x)
@@ -516,11 +522,13 @@ class TrainModule(L.LightningModule):
 ---- train.py ----
 import hydra
 from omegaconf import DictConfig, OmegaConf
+from lightning.pytorch.loggers import WandbLogger
+
 from hydra.utils import instantiate, get_class
 import lightning as L
 import torch
 
-@hydra.main(config_path="src/configs", config_name="config", version_base="1.3")
+@hydra.main(config_path="configs", config_name="config", version_base="1.3")
 def main(cfg: DictConfig):
     block_cls = get_class(cfg.model.block._target_)
     stem = instantiate(cfg.model.stem)
@@ -541,7 +549,6 @@ def main(cfg: DictConfig):
     # Callbacks
     callbacks = [instantiate(cb) for cb in cfg.trainer.callbacks.values()]
     logger = instantiate(cfg.trainer.logger)
-
     # Trainer
     trainer = L.Trainer(
         logger=logger,
@@ -553,8 +560,13 @@ def main(cfg: DictConfig):
         precision=cfg.trainer.precision,
         benchmark=True,
     )
+    ckpt_path = cfg.checkpoint.resume.ckpt_path
+    if ckpt_path:
+        print(f"Resuming from checkpoint: {cfg.checkpoint.resume.ckpt_path}")
+    else:
+        print("Starting training from scratch")
 
-    trainer.fit(lightning_module, datamodule=datamodule)
+    trainer.fit(lightning_module, datamodule=datamodule, ckpt_path=ckpt_path)
 
 if __name__ == "__main__":
     torch.set_float32_matmul_precision("high")

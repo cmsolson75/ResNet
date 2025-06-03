@@ -1,1 +1,2 @@
+# @package _global_
 experiment: train_cifar_from_scratch

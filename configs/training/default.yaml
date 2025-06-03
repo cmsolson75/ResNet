@@ -1,5 +1,5 @@
 _target_: src.training.module.TrainModule
+freeze_backbone: false
 model: ${model}
 optimizer: ${optimizer}
 scheduler: ${scheduler}
-num_classes: 10

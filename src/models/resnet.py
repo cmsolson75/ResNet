@@ -15,6 +15,8 @@ class ResNet(nn.Module):
         use_residual: bool = True,
     ) -> None:
         super().__init__()
+        
+        self.num_classes = num_classes
         self.stem = stem
         self.in_planes = stem.out_channels
 
@@ -34,7 +36,7 @@ class ResNet(nn.Module):
 
         final_planes = stage_channels[-1] * getattr(block, "expansion", 1)
         self.pool = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Linear(final_planes, num_classes)
+        self.fc = nn.Linear(final_planes, self.num_classes)
 
     def _make_layer(
         self,

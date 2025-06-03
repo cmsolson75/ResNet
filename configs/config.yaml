@@ -1,18 +1,18 @@
 defaults:
-   - _self_
-   - dataset: cifar10
-   - model: resnet_cifar
-   - model/block: basic
-   - model/stem: cifar
-   - optimizer: sgd
-   - scheduler: cosine
-   - trainer: default
-   - training: default
-   - experiment: train_cifar_from_scratch
+  - dataset: cifar10
+  - model: resnet_cifar
+  - model/block: basic
+  - model/stem: cifar
+  - optimizer: sgd
+  - scheduler: cosine
+  - trainer: default
+  - training: default
+  - experiment: train_cifar10
+  - _self_
 
 checkpoint:
   resume:
-    ckpt_path: /home/cameronolson/documents/projects/ResNet/logs/2025-06-02_19-22-13/resnet_experiments/83vgm0ll/checkpoints/last.ckpt
+    ckpt_path: null
 
 hydra:
   run:
