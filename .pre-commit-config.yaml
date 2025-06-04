@@ -1,0 +1,52 @@
+repos:
+  # Core hygiene checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: detect-private-key
+
+  # Python formatter
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        args: [--line-length, "99"]
+
+  # Python linter
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args:
+          [
+            "--extend-ignore=E203,E501,F401,F841",
+            "--exclude=logs/*,data/*",
+          ]
+
+  # Import sorter compatible with Black
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  # Clear Jupyter notebook outputs
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
+    hooks:
+      - id: nbstripout
+
+  # Optional: Lint notebooks using nbQA
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.0
+    hooks:
+      - id: nbqa-black
+        args: ["--line-length=99"]
+      - id: nbqa-flake8
+        args:
+          ["--extend-ignore=E203,E501", "--exclude=logs/*,data/*"]
+      - id: nbqa-isort
+        args: ["--profile=black"]

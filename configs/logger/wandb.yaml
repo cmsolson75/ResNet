@@ -1,0 +1,4 @@
+_target_: lightning.pytorch.loggers.WandbLogger
+project: resnet_experiments
+name: ${now:%Y-%m-%d}_${experiment}
+log_model: true

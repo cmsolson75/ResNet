@@ -11,7 +11,7 @@ cifar100-alexnet/
 outputs/
 datasets/
 logs/
-
+*.pt
 
 .Python
 build/

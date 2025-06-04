@@ -1,8 +1,9 @@
 import lightning as L
-import torch.nn as nn
-from torchmetrics import Accuracy
-from hydra.utils import instantiate
 import torch
+import torch.nn as nn
+from hydra.utils import instantiate
+from torchmetrics import Accuracy
+
 
 class TrainModule(L.LightningModule):
     def __init__(self, model, optimizer, scheduler, freeze_backbone=False):
@@ -17,14 +18,13 @@ class TrainModule(L.LightningModule):
         if freeze_backbone:
             self.freeze_backbone_layers()
 
-    
     def freeze_backbone_layers(self):
         for param in self.model.stem.parameters():
             param.requires_grad = False
-        for stage in self.model.stages:
-            for param in stage.parameters():
-                param.requires_grad = False
-
+        for i, stage in enumerate(self.model.stages):
+            if i == 1:  # Just freeze first layer
+                for param in stage.parameters():
+                    param.requires_grad = False
 
     def forward(self, x):
         return self.model(x)

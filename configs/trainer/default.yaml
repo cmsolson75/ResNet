@@ -4,11 +4,6 @@ accelerator: gpu
 devices: 1
 strategy: auto
 precision: 16-mixed
-logger:
-  _target_: lightning.pytorch.loggers.WandbLogger
-  project: resnet_experiments
-  name: ${now:%Y-%m-%d}_${experiment}
-  log_model: true
 callbacks:
   model_checkpoint:
     _target_: lightning.pytorch.callbacks.ModelCheckpoint
