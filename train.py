@@ -15,20 +15,13 @@ def main(cfg: DictConfig):
 
     # Instantiate model with class objects
     model = instantiate(cfg.model, block=block_cls, stem=stem)
-    if (
-        "checkpoint" in cfg
-        and "finetune" in cfg.checkpoint
-        and cfg.checkpoint.finetune.path is not None
-    ):
-        print(f"Loading pretrained weights from {cfg.checkpoint.finetune.path}")
+    if cfg.mode == "finetune":
+        print("Fine-tuning from {cfg.ckpt_path}")
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        state_dict = torch.load(cfg.checkpoint.finetune.path, map_location=device)
-
-        # Remove classifier weights if num_classes mismatches
+        state_dict = torch.load(cfg.ckpt_path, map_location=device)
         if "fc.weight" in state_dict and state_dict["fc.weight"].shape[0] != cfg.model.num_classes:
             state_dict.pop("fc.weight", None)
             state_dict.pop("fc.bias", None)
-
         model.load_state_dict(state_dict, strict=False)
 
     optimizer = instantiate(cfg.optimizer, params=model.parameters())
@@ -43,7 +36,7 @@ def main(cfg: DictConfig):
     )
 
     # Callbacks
-    callbacks = [instantiate(cb) for cb in cfg.trainer.callbacks.values()]
+    callbacks = [instantiate(cb) for cb in cfg.callbacks.values()]
     logger = instantiate(cfg.logger)
     # Trainer
     trainer = L.Trainer(
@@ -55,13 +48,13 @@ def main(cfg: DictConfig):
         strategy=cfg.trainer.strategy,
         precision=cfg.trainer.precision,
     )
-    ckpt_path = cfg.checkpoint.resume.ckpt_path
-    if ckpt_path:
-        print(f"Resuming from checkpoint: {cfg.checkpoint.resume.ckpt_path}")
-    else:
-        print("Starting training from scratch")
+    if cfg.mode == "resume":
+        print(f"Resuming from checkpoint: {cfg.ckpt_path}")
+        trainer.fit(lightning_module, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
 
-    trainer.fit(lightning_module, datamodule=datamodule, ckpt_path=ckpt_path)
+    else:
+        print("Starting training from scratch" if cfg.mode == "train" else "Fine-tuning")
+        trainer.fit(lightning_module, datamodule=datamodule)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,3 @@
+defaults:
+  - model_checkpoint
+  - _self_

@@ -4,12 +4,3 @@ accelerator: gpu
 devices: 1
 strategy: auto
 precision: 16-mixed
-callbacks:
-  model_checkpoint:
-    _target_: lightning.pytorch.callbacks.ModelCheckpoint
-    monitor: val/loss
-    mode: min
-    save_top_k: 3
-    save_last: true
-    every_n_epochs: 10
-    filename: "{epoch}-{val_loss:.4f}"

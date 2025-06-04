@@ -7,25 +7,13 @@ defaults:
   - scheduler: cosine
   - trainer: default
   - training: default
-  - experiment: train_cifar10
+  - experiment: null
   - logger: wandb
-  - override hydra/job_logging: colorlog
-  - override hydra/hydra_logging: colorlog
+  - callbacks: default
+  - hydra: default
   - _self_
 
 debug: true
-
-checkpoint:
-  resume:
-    ckpt_path: null
-  fine_tune:
-    path: null
-
-hydra:
-  run:
-    dir: logs/${now:%Y-%m-%d_%H-%M-%S}
-  sweep:
-    dir: logs/multirun/${now:%Y-%m-%d_%H-%M-%S}
-  output_subdir: null
-  job:
-    chdir: true
+seed: null
+mode: train # or resume, finetune
+ckpt_path: null # PTL
