@@ -6,7 +6,7 @@ from lightning.pytorch.loggers import WandbLogger
 from omegaconf import DictConfig, OmegaConf
 
 
-@hydra.main(config_path="configs", config_name="config", version_base="1.3")
+@hydra.main(config_path="configs", config_name="train", version_base="1.3")
 def main(cfg: DictConfig):
     if cfg.debug:
         print(OmegaConf.to_yaml(cfg))

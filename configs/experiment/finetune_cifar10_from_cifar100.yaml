@@ -1,6 +1,0 @@
-# @package _global_
-
-defaults:
-  - override /dataset: cifar10
-
-experiment: finetune_cifar10_from_cifar100

@@ -1,100 +1,97 @@
-# ResNet Implementation
+Here's the updated `README.md` with **hyperparameter sweeps moved to the last task** as requested:
 
+---
 
-Implementation References
-- [TinyGrad](https://github.com/tinygrad/tinygrad/blob/master/extra/models/resnet.py)
-- [Torch](https://docs.pytorch.org/vision/main/_modules/torchvision/models/resnet.html)
-- [Paper](https://arxiv.org/abs/1512.03385)
+# ResNet: Paper-Accurate Implementation with Modern Tools
 
-Requirements
-- Training system
-  - Hydra: Dynamic config managment
-  - W&B: Logging -> Save some artifacts to it. 
-  - PTL: Training wrapper; keep it only for that.
-- Inference System
-  - Gradio interface
-  - Config system
-  - ONNX compilation.
-- Hydra controls full system
-  - Demo
-  - Model Export
-  - Training
-  - Ensure: Hydra is on the edge of the system, I don't want everything to be relient on it that is needed downstream in deployment.
-- Basic tests
-  - Stuff to make sure configs load, and model is working as expected.
+This project implements ResNet (and PlainNet) as described in [He et al. (2015)](https://arxiv.org/abs/1512.03385). It uses **PyTorch Lightning**, **Hydra**, and **W\&B** to train models on **ImageNet (via WebDataset)** and replicate original CIFAR-10/CIFAR-100 experiments, including **intermediate activation analysis**.
 
+---
+
+## 🎯 Objectives
+
+* Implement ResNet and PlainNet from scratch
+* Train ResNet-50 on ImageNet using WebDataset format
+* Reproduce CIFAR-10 ResNet vs. PlainNet results
+* Perform internal analysis of layer-wise activations
+* Conduct hyperparameter sweeps on CIFAR-10 and CIFAR-100
+
+---
+
+## ⚙️ Framework Stack
+
+| Tool              | Role                                   |
+| ----------------- | -------------------------------------- |
+| PyTorch Lightning | Structured training and checkpointing  |
+| Hydra             | Experiment configuration management    |
+| W\&B              | Logging and hyperparameter sweeps      |
+| WebDataset        | Efficient large-scale ImageNet loading |
+| Optuna            | Hyperparameter Sweeps                  |
+
+---
 
 ## 🧪 Experiment Plan
 
-This project explores residual networks (ResNets) under various training regimes, including full ImageNet training, fine-tuning, and CIFAR-10 replication studies. The goal is to analyze model behavior, generalization, and training dynamics across transfer learning and architecture variants.
+### 1. **ImageNet Training**
 
----
-
-### **Phase 1: ImageNet Pretraining**
-
-**Objective**: Train a base model on ILSVRC-2012 for use in downstream transfer learning.
-
-* **Models**:
-  * `ResNet-50`
-* **Setup**:
-  * Standard ResNet training on ImageNet (90 epochs)
-  * SGD + momentum, weight decay, multi-step LR schedule
-  * Output: `resnet50_imagenet.pt`
-
----
-
-### **Phase 2: CIFAR-10 Fine-Tuning**
-
-**Objective**: Evaluate transfer learning effectiveness from ImageNet → CIFAR-10 under multiple fine-tuning strategies.
-
-* **Base Model**: `ResNet-50` pretrained on ImageNet
-
-#### 🔁 Fine-Tuning Variants
-
-| Strategy     | Description                                   |
-| ------------ | --------------------------------------------- |
-| Head only    | Freeze backbone, train new classifier head    |
-| Head + Stem  | Freeze middle layers, fine-tune low/high ends |
-| Full FT      | Fine-tune entire model                        |
-| FastAI-style | Discriminative LR, gradual unfreezing         |
-
-#### 🧪 Techniques Explored
-
-* Warm-up schedules
-* Learning rate finders
-* Layer freezing/unfreezing control
-* BatchNorm handling during FT
-
----
-
-### **Phase 3: CIFAR-10 From Scratch**
-
-**Objective**: Replicate and validate results from He et al. (2015) for ResNet vs. PlainNet.
-
-* **Datasets**: CIFAR-10 (32×32)
-* **Models**:
-
-  * `ResNet-{20, 32, 44, 56, 110}`
-  * `Plain-{20, 32, 44, 56, 110}`
+* **Model**: ResNet-50
+* **Data**: `timm/imagenet-1k-wds` (WebDataset)
 * **Training Setup**:
 
-  * SGD + momentum, weight decay
-  * LR: 0.1, decay at epochs 82 and 123
-  * Epochs: 164
-  * Data Augmentation: random crop, horizontal flip
-* **Metrics**:
-
-  * Training vs. validation error
-  * Degradation trends
-  * Layer-wise response analysis (L2 norm of activations)
+  * SGD + momentum
+  * Cosine or multi-step LR
+  * Mixed-precision
+* **Output**: `resnet50-imagenet.pt`
 
 ---
 
-### **Phase 4: Internal Analysis**
+### 2. **CIFAR-10/PlainNet Replication**
 
-**Objective**: Analyze internal activations and learning behavior.
+* **Goal**: Reproduce ResNet vs. PlainNet results
+* **Models**:
 
-* Hook-based capture of intermediate activations
-* Compute per-layer L2 norms (as in ResNet paper)
-* Compare depth-wise behavior in ResNet vs. PlainNet
+  * `Plain-{20,32,44,56,110}`
+  * `ResNet-{20,32,44,56,110}`
+* **Training Setup**:
 
+  * Dataset: CIFAR-10
+  * Epochs: 164
+  * LR: 0.1, decayed at 82 and 123
+  * Augmentation: RandomCrop(32, padding=4), RandomHorizontalFlip
+* **Metrics**:
+
+  * Train/val accuracy
+  * Degradation trend with increased depth
+
+---
+
+### 3. **Intermediate Activation Analysis**
+
+* **Objective**: Replicate the activation magnitude study from the paper (Fig. 6)
+* **Method**:
+  * Hook into each residual block
+  * Compute L2 norm of output activations
+  * Aggregate across layers and depth
+* **Analysis**:
+  * Compare ResNet vs. PlainNet
+  * Validate gradient preservation across layers
+  * Evaluate depth-wise signal degradation
+
+---
+
+### 4. **CIFAR-10/100 Hyperparameter Sweeps**
+
+* **Purpose**: Evaluate impact model components.
+* **Method**: Hydra multirun + Optuna
+* **Targets**:
+  * Get optimal ResNet for CIFAR-10 and CIFAR-100
+
+---
+
+## 📚 References
+
+* [He et al., 2015 (arXiv:1512.03385)](https://arxiv.org/abs/1512.03385)
+* [TorchVision ResNet](https://pytorch.org/vision/stable/_modules/torchvision/models/resnet.html)
+* [TinyGrad ResNet](https://github.com/tinygrad/tinygrad/blob/master/extra/models/resnet.py)
+
+---

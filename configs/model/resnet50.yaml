@@ -1,0 +1,12 @@
+defaults:
+  - _self_
+  - block: bottleneck
+  - stem: imagenet
+
+
+_target_: src.models.resnet.ResNet
+stem: ${stem}
+block: ${block}
+block_layers: [3, 4, 6, 3]
+stage_channels: [64, 128, 256, 512]
+num_classes: 1000

@@ -62,7 +62,7 @@ class Bottleneck(nn.Module):
         )
         self.bn1 = nn.BatchNorm2d(planes)
         # Technically ResNet 1.5
-        self.conv2 = nn.Conv3d(
+        self.conv2 = nn.Conv2d(
             in_channels=planes,
             out_channels=planes,
             kernel_size=3,
@@ -99,4 +99,4 @@ class Bottleneck(nn.Module):
         if self.use_residual:
             out += self.shortcut(x)
 
-        return self.relu(x)
+        return self.relu(out)

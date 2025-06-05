@@ -1,5 +1,0 @@
-defaults:
-  - resnet_cifar
-  - _self_
-
-num_classes: 100

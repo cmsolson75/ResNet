@@ -4,3 +4,10 @@ batch_size: 256
 num_workers: 7
 pin_memory: true
 persistent_workers: true
+
+
+
+input_shape: [3, 32, 32]
+normalize:
+  mean: [0.5071, 0.4867, 0.4408]
+  std: [0.2675, 0.2565, 0.2761]

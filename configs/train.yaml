@@ -1,8 +1,6 @@
 defaults:
   - dataset: cifar10
   - model: resnet_cifar
-  - model/block: basic
-  - model/stem: cifar
   - optimizer: sgd
   - scheduler: cosine
   - trainer: default
@@ -13,7 +11,8 @@ defaults:
   - hydra: default
   - _self_
 
-debug: true
+debug: false
 seed: null
 mode: train # or resume, finetune
-ckpt_path: null # PTL
+# Can be pytorch or ptl model, depending on what you are doing.
+ckpt_path: null

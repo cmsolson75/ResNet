@@ -1,0 +1,8 @@
+# @package _global_
+defaults:
+  - override /dataset: imagenet
+  - override /model: resnet50
+
+experiment:
+  name: train_imagenet
+  tags: ["resnet", "imagenet", "resnet50"]
