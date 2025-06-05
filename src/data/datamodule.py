@@ -1,6 +1,8 @@
 import os
 
 import lightning as L
+import torchvision.transforms as T
+import webdataset as wds
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder, ImageNet
@@ -203,4 +205,82 @@ class ImageNetDataModule(L.LightningDataModule):
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             persistent_workers=self.persistent_workers,
+        )
+
+
+# Setup for future webdataset needs, this is just a stub and needs to be verified.
+class ImageNetWDSDataModule(L.LightningDataModule):
+    def __init__(
+        self,
+        train_shards: str,
+        val_shards: str,
+        batch_size: int = 64,
+        num_workers: int = 8,
+        input_shape=(3, 224, 224),
+    ):
+        super().__init__()
+        self.train_shards = train_shards
+        self.val_shards = val_shards
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.input_shape = input_shape
+
+        self.train_transform = T.Compose(
+            [
+                T.RandomResizedCrop(self.input_shape[1]),
+                T.RandomHorizontalFlip(),
+                T.ToTensor(),
+                T.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225],
+                ),
+            ]
+        )
+
+        self.val_transform = T.Compose(
+            [
+                T.Resize(256),
+                T.CenterCrop(self.input_shape[1]),
+                T.ToTensor(),
+                T.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225],
+                ),
+            ]
+        )
+
+    def setup(self, stage=None):
+        def decode_cls(x):
+            return int(x.decode("utf-8"))
+
+        self.train_dataset = (
+            wds.WebDataset(self.train_shards, handler=wds.warn_and_continue)
+            .decode("pil")
+            .to_tuple("jpg", "cls")
+            .map_tuple(self.train_transform, decode_cls)
+        )
+
+        self.val_dataset = (
+            wds.WebDataset(self.val_shards, handler=wds.warn_and_continue)
+            .decode("pil")
+            .to_tuple("jpg", "cls")
+            .map_tuple(self.val_transform, decode_cls)
+        )
+
+    def train_dataloader(self):
+        return DataLoader(
+            self.train_dataset.batched(self.batch_size, partial=False),
+            batch_size=None,
+            num_workers=self.num_workers,
+            pin_memory=True,
+            persistent_workers=True,
+        )
+
+    def val_dataloader(self):
+        return DataLoader(
+            self.val_dataset.batched(self.batch_size, partial=False),
+            batch_size=None,
+            num_workers=self.num_workers,
+            pin_memory=True,
+            persistent_workers=True,
         )

@@ -6,3 +6,4 @@ numpy
 omegaconf
 wandb
 scipy
+webdataset

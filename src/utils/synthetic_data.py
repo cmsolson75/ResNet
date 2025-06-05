@@ -16,7 +16,6 @@ def generate_dummy_imagenet(root, num_classes=2, num_train=5, num_val=2, image_s
                 img.save(os.path.join(class_dir, f"img_{i}.jpg"), format="JPEG")
 
 
-# Example usage
 if __name__ == "__main__":
     generate_dummy_imagenet(
         "/home/cameronolson/documents/datasets", num_classes=3, num_train=4, num_val=2

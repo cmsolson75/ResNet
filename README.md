@@ -1,7 +1,3 @@
-Here's the updated `README.md` with **hyperparameter sweeps moved to the last task** as requested:
-
----
-
 # ResNet: Paper-Accurate Implementation with Modern Tools
 
 This project implements ResNet (and PlainNet) as described in [He et al. (2015)](https://arxiv.org/abs/1512.03385). It uses **PyTorch Lightning**, **Hydra**, and **W\&B** to train models on **ImageNet (via WebDataset)** and replicate original CIFAR-10/CIFAR-100 experiments, including **intermediate activation analysis**.
@@ -36,6 +32,7 @@ This project implements ResNet (and PlainNet) as described in [He et al. (2015)]
 
 * **Model**: ResNet-50
 * **Data**: `timm/imagenet-1k-wds` (WebDataset)
+  - https://huggingface.co/datasets/timm/imagenet-1k-wds
 * **Training Setup**:
 
   * SGD + momentum
