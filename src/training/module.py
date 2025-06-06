@@ -34,8 +34,8 @@ class TrainModule(L.LightningModule):
         logits = self(x)
         loss = self.loss_fn(logits, y)
         self.train_acc.update(logits, y)
-        self.log("train/loss", loss, on_step=True, on_epoch=True)
-        self.log("train/acc", self.train_acc, on_epoch=True)
+        self.log("train/loss", loss, on_step=True, on_epoch=True, sync_dist=True)
+        self.log("train/acc", self.train_acc, on_epoch=True, sync_dist=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -43,8 +43,8 @@ class TrainModule(L.LightningModule):
         logits = self(x)
         loss = self.loss_fn(logits, y)
         self.val_acc.update(logits, y)
-        self.log("val/loss", loss, on_epoch=True)
-        self.log("val/acc", self.val_acc, on_epoch=True)
+        self.log("val/loss", loss, on_epoch=True, sync_dist=True)
+        self.log("val/acc", self.val_acc, on_epoch=True, sync_dist=True)
 
     def configure_optimizers(self):
         return {"optimizer": self.optimizer, "lr_scheduler": self.scheduler}

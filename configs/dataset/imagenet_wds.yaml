@@ -1,11 +1,11 @@
 _target_: src.data.datamodule.ImageNetWDSDataModule
 
 paths:
-  train: ${hydra:runtime.cwd}/datasets/wds_imagenet1k/train/{00000..01279}.tar
-  val: ${hydra:runtime.cwd}/datasets/wds_imagenet1k/validation/{00000..00049}.tar
+  train: ${hydra:runtime.cwd}/datasets/wds_imagenet1k/train/imagenet1k-train-{0000..1023}.tar
+  val: ${hydra:runtime.cwd}/datasets/wds_imagenet1k/validation/imagenet1k-validation-{00..63}.tar
 
 batch_size: 512
-num_workers: 8
+num_workers: 7
 pin_memory: true
 persistent_workers: true
 

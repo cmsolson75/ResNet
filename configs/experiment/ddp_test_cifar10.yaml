@@ -1,13 +1,11 @@
 # @package _global_
 defaults:
-  - override /dataset: imagenet_wds
-  - override /model: resnet50
+  - override /dataset: cifar10_wds
   - override /trainer: ddp
 
 experiment:
   name: train_imagenet
   tags: ["resnet", "imagenet", "resnet50"]
 
-
-logger:
-  project: ILSVRC_resnet
+dataset:
+  batch_size: 512
