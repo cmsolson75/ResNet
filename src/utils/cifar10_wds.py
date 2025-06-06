@@ -63,9 +63,3 @@ dataset = (
 )
 
 loader = torch.utils.data.DataLoader(dataset, batch_size=64, num_workers=4)
-
-
-# for batch in loader:
-#     images, labels = batch
-#     print(images.shape, labels.shape)
-#     break

@@ -1,9 +1,12 @@
-torch
+torch>=2.0
 torchvision
+lightning>=2.0  # lightning.pytorch
 hydra-core
-lightning
-numpy
 omegaconf
 wandb
 scipy
 webdataset
+torchmetrics
+pre-commit  # for .pre-commit-config.yaml support
+numpy
+huggingface_hub  # used in setup_imagenet_wds.py
