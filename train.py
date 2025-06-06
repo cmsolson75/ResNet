@@ -42,11 +42,7 @@ def main(cfg: DictConfig):
     trainer = L.Trainer(
         logger=logger,
         callbacks=callbacks,
-        max_epochs=cfg.trainer.max_epochs,
-        accelerator=cfg.trainer.accelerator,
-        devices=cfg.trainer.devices,
-        strategy=cfg.trainer.strategy,
-        precision=cfg.trainer.precision,
+        **cfg.trainer,
     )
     if cfg.mode == "resume":
         print(f"Resuming from checkpoint: {cfg.ckpt_path}")

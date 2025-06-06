@@ -1,6 +1,8 @@
+from typing import List, Type, Union
+
 import torch
 import torch.nn as nn
-from typing import List, Union, Type
+
 from src.models.blocks import BasicBlock, Bottleneck
 
 
@@ -15,7 +17,7 @@ class ResNet(nn.Module):
         use_residual: bool = True,
     ) -> None:
         super().__init__()
-        
+
         self.num_classes = num_classes
         self.stem = stem
         self.in_planes = stem.out_channels
@@ -25,9 +27,7 @@ class ResNet(nn.Module):
         ), "block_layers and stage_channels must align"
 
         self.stages = nn.ModuleList()
-        for idx, (num_blocks, out_planes) in enumerate(
-            zip(block_layers, stage_channels)
-        ):
+        for idx, (num_blocks, out_planes) in enumerate(zip(block_layers, stage_channels)):
             stride = 1 if idx == 0 else 2
             stage = self._make_layer(
                 block, out_planes, num_blocks, stride=stride, use_residual=use_residual

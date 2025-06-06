@@ -1,10 +1,10 @@
 _target_: src.data.datamodule.CIFAR100DataModule
-data_dir: ${hydra:runtime.cwd}/datasets
+paths:
+  root: ${hydra:runtime.cwd}/datasets
 batch_size: 256
 num_workers: 7
 pin_memory: true
 persistent_workers: true
-
 
 
 input_shape: [3, 32, 32]

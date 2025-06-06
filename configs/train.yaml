@@ -5,7 +5,7 @@ defaults:
   - scheduler: cosine
   - trainer: default
   - training: default
-  - experiment: null
+  - experiment: default
   - logger: wandb
   - callbacks: default
   - hydra: default

@@ -1,0 +1,14 @@
+# @package _global_
+defaults:
+  - override /dataset: cifar10_wds
+  - override /model: resnet_cifar
+  - override /scheduler: cosine
+
+
+experiment:
+  name: train_cifar10_wds
+  tags: ["resnet", "cifar10"]
+
+
+trainer:
+  max_epochs: 90

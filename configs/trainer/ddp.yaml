@@ -1,6 +1,6 @@
-max_epochs: 40
+max_epochs: 90
 accelerator: gpu
-devices: 1
-strategy: auto
+devices: 2
+strategy: ddp
 precision: 16-mixed
 benchmark: true

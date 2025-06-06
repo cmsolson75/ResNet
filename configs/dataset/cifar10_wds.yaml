@@ -1,0 +1,15 @@
+_target_: src.data.datamodule.CIFAR10WDSDataModule
+
+paths:
+  train: ${hydra:runtime.cwd}/datasets/wds_cifar10/train/shard-{00000..00049}.tar
+  val: ${hydra:runtime.cwd}/datasets/wds_cifar10/test/shard-{00000..00009}.tar
+
+batch_size: 256
+num_workers: 7
+pin_memory: true
+persistent_workers: true
+
+input_shape: [3, 32, 32]
+normalize:
+  mean: [0.4914, 0.4822, 0.4465]
+  std: [0.2023, 0.1994, 0.2010]

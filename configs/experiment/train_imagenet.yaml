@@ -1,7 +1,8 @@
 # @package _global_
 defaults:
-  - override /dataset: imagenet
+  - override /dataset: imagenet_wds
   - override /model: resnet50
+  - override /trainer: ddp
 
 experiment:
   name: train_imagenet
