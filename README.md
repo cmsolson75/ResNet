@@ -1,94 +1,134 @@
 # ResNet: Paper-Accurate Implementation with Modern Tools
 
-This project implements ResNet (and PlainNet) as described in [He et al. (2015)](https://arxiv.org/abs/1512.03385). It uses **PyTorch Lightning**, **Hydra**, and **W\&B** to train models on **ImageNet (via WebDataset)** and replicate original CIFAR-10/CIFAR-100 experiments, including **intermediate activation analysis**.
+This repository provides a modular and reproducible implementation of **ResNet** and **PlainNet** as described in [He et al. (2015)](https://arxiv.org/abs/1512.03385). It is designed to support ImageNet-scale training using modern PyTorch infrastructure: **Lightning**, **Hydra**, **WebDataset**, and **W&B**.
 
 ---
 
-## 🎯 Objectives
+## Highlights
 
-* Implement ResNet and PlainNet from scratch
-* Train ResNet-50 on ImageNet using WebDataset format
-* Reproduce CIFAR-10 ResNet vs. PlainNet results
-* Perform internal analysis of layer-wise activations
-* Conduct hyperparameter sweeps on CIFAR-10 and CIFAR-100
-
----
-
-## ⚙️ Framework Stack
-
-| Tool              | Role                                   |
-| ----------------- | -------------------------------------- |
-| PyTorch Lightning | Structured training and checkpointing  |
-| Hydra             | Experiment configuration management    |
-| W\&B              | Logging and hyperparameter sweeps      |
-| WebDataset        | Efficient large-scale ImageNet loading |
-| Optuna            | Hyperparameter Sweeps                  |
+- From-scratch **ResNet** and **PlainNet** implementations (BasicBlock and Bottleneck)
+- Trains **ResNet-50 on ImageNet** using [WebDataset](https://github.com/webdataset/webdataset) format
+- Modular configuration using **Hydra**
+- Scalable training with **PyTorch Lightning** (DDP, AMP, checkpointing)
+- Integrated with **Weights & Biases** for logging and tracking
+- Export script to extract raw `state_dict` weights from Lightning checkpoint
+- Pre-commit integration: Black, Flake8, isort, nbQA
 
 ---
 
-## 🧪 Experiment Plan
+## Training Environment
 
-### 1. **ImageNet Training**
+ImageNet training was performed on the following GCP instance:
 
-* **Model**: ResNet-50
-* **Data**: `timm/imagenet-1k-wds` (WebDataset)
-  - https://huggingface.co/datasets/timm/imagenet-1k-wds
-* **Training Setup**:
+- **Instance Type**: `a2-highgpu-2g`
+- **GPUs**: 2 × NVIDIA A100 (40GB each)
+- **CPU**: 24 vCPUs (12 physical cores with hyperthreading)
+- **RAM**: 170 GB system memory
 
-  * SGD + momentum
-  * Cosine or multi-step LR
-  * Mixed-precision
-* **Output**: `resnet50-imagenet.pt`
+This configuration is sufficient for full-batch ImageNet training using WebDataset and mixed precision.
 
 ---
 
-### 2. **CIFAR-10/PlainNet Replication**
+## 📦 How to Use
 
-* **Goal**: Reproduce ResNet vs. PlainNet results
-* **Models**:
+### 1. Define a Run
 
-  * `Plain-{20,32,44,56,110}`
-  * `ResNet-{20,32,44,56,110}`
-* **Training Setup**:
+Runs are configured via Hydra. For example:
 
-  * Dataset: CIFAR-10
-  * Epochs: 164
-  * LR: 0.1, decayed at 82 and 123
-  * Augmentation: RandomCrop(32, padding=4), RandomHorizontalFlip
-* **Metrics**:
+```yaml
+# configs/experiment/train_imagenet.yaml
+# @package _global_
+experiment:
+  name: train_imagenet
+  tags: ["resnet", "imagenet", "resnet50"]
+````
 
-  * Train/val accuracy
-  * Degradation trend with increased depth
+### 2. Train the Model
+
+```bash
+python train.py experiment=train_imagenet
+```
+
+Hydra composes the full configuration (model, dataset, optimizer, scheduler, logger, trainer) automatically.
+
+### 3. Export Trained Weights
+
+Convert a Lightning checkpoint into raw `state_dict` weights for deployment or fine-tuning:
+
+```bash
+python export.py \
+  --ckpt-path path/to/checkpoint.ckpt \
+  --output-path resnet50-imagenet.pt \
+  experiment=train_imagenet
+```
+
+The script reconstructs the model using Hydra config and saves the weights via `torch.save`.
 
 ---
 
-### 3. **Intermediate Activation Analysis**
+## 📥 Downloading ImageNet (WebDataset Format)
 
-* **Objective**: Replicate the activation magnitude study from the paper (Fig. 6)
-* **Method**:
-  * Hook into each residual block
-  * Compute L2 norm of output activations
-  * Aggregate across layers and depth
-* **Analysis**:
-  * Compare ResNet vs. PlainNet
-  * Validate gradient preservation across layers
-  * Evaluate depth-wise signal degradation
+This project uses ImageNet from:
+
+* [`timm/imagenet-1k-wds`](https://huggingface.co/datasets/timm/imagenet-1k-wds)
+
+**⚠️ Note**: This dataset is **150+ GB**. Ensure you have sufficient disk space before downloading.
+
+To download and organize the WebDataset shards:
+
+```bash
+python src/utils/setup_imagenet_wds.py
+```
+
+This creates the following directory structure:
+
+```
+datasets/wds_imagenet1k/
+├── train/
+│   ├── imagenet1k-train-0000.tar
+│   └── ...
+└── validation/
+    ├── imagenet1k-validation-00.tar
+    └── ...
+```
+
+Matches `configs/dataset/imagenet_wds.yaml`.
 
 ---
 
-### 4. **CIFAR-10/100 Hyperparameter Sweeps**
+## Project Structure
 
-* **Purpose**: Evaluate impact model components.
-* **Method**: Hydra multirun + Optuna
-* **Targets**:
-  * Get optimal ResNet for CIFAR-10 and CIFAR-100
+```
+configs/           # Hydra configs (datasets, models, training, logger, etc.)
+src/models/        # ResNet and PlainNet implementations (blocks, stems)
+src/data/          # LightningDataModules for CIFAR and ImageNet
+src/utils/         # WebDataset utilities, export script, synthetic data
+train.py           # Entry point for Hydra-based training
+export.py          # Converts Lightning checkpoint to raw model weights
+```
+
+---
+
+## 🛠️ Dependencies
+
+Main dependencies:
+
+* `torch`, `torchvision`
+* `lightning>=2.0` (PyTorch Lightning)
+* `hydra-core`, `omegaconf`
+* `wandb`, `optuna`, `webdataset`
+* `pre-commit`, `black`, `flake8`, `isort`, `nbQA`
+
+Install all requirements:
+
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
 ## 📚 References
 
 * [He et al., 2015 (arXiv:1512.03385)](https://arxiv.org/abs/1512.03385)
+* [timm/imagenet-1k-wds](https://huggingface.co/datasets/timm/imagenet-1k-wds)
 * [TorchVision ResNet](https://pytorch.org/vision/stable/_modules/torchvision/models/resnet.html)
-* [TinyGrad ResNet](https://github.com/tinygrad/tinygrad/blob/master/extra/models/resnet.py)
-
----
