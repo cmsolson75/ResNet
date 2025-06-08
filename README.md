@@ -66,7 +66,7 @@ The script reconstructs the model using Hydra config and saves the weights via `
 
 ---
 
-## 📥 Downloading ImageNet (WebDataset Format)
+## Downloading ImageNet (WebDataset Format)
 
 This project uses ImageNet from:
 
@@ -109,7 +109,7 @@ export.py          # Converts Lightning checkpoint to raw model weights
 
 ---
 
-## 🛠️ Dependencies
+## Dependencies
 
 Main dependencies:
 
@@ -127,8 +127,9 @@ pip install -r requirements.txt
 
 ---
 
-## 📚 References
+## References
 
 * [He et al., 2015 (arXiv:1512.03385)](https://arxiv.org/abs/1512.03385)
 * [timm/imagenet-1k-wds](https://huggingface.co/datasets/timm/imagenet-1k-wds)
 * [TorchVision ResNet](https://pytorch.org/vision/stable/_modules/torchvision/models/resnet.html)
+* [TinyGrad ResNet](https://github.com/tinygrad/tinygrad/blob/master/extra/models/resnet.py)
