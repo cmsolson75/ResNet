@@ -10,4 +10,8 @@ experiment:
 
 
 logger:
+  _target_: lightning.pytorch.loggers.WandbLogger
   project: ILSVRC_resnet
+  name: ${now:%Y-%m-%d}_${experiment.name}
+  tags: ${experiment.tags}
+  log_model: true
