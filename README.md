@@ -29,7 +29,7 @@ This configuration is sufficient for full-batch ImageNet training using WebDatas
 
 ---
 
-## 📦 How to Use
+## How to Use
 
 ### 1. Define a Run
 
